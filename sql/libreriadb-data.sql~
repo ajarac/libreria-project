@@ -1,0 +1,44 @@
+source libreriadb-schema.sql;
+insert into users values('angel', MD5('angel'), 'Angel');
+insert into user_roles values ('angel', 'registered');
+
+insert into users values('admin', MD5('admin'), 'Admin');
+insert into user_roles values ('admin', 'admin');
+
+insert into users values('test', MD5('test'), 'Test');
+insert into user_roles values ('test', 'registered');
+
+insert into users values('feliu', MD5('feliu'), 'Feliu');
+insert into user_roles values ('Feliu', 'registered');
+
+insert into users values('oscar', MD5('oscar'), 'Oscar');
+insert into user_roles values ('oscar', 'registered');
+
+insert into users values('jara', MD5('jara'), 'Jara');
+insert into user_roles values ('jara', 'admin');
+
+insert into authors(name) values('Manuel Lopez');
+insert into authors(name) values('David Sesto');
+insert into authors(name) values('Albert Soto');
+insert into authors(name) values('Marc Cabezas');
+insert into authors(name) values('Diego Flores');
+
+select sleep(1);insert into books(title, language, edition, editionDate, printingDate, publisher) values('Los hombres de dios', 'Spanish', '2', '15/2/1980', '6/9/2004','editora 1');
+select sleep(1);insert into books(title, language, edition, editionDate, printingDate, publisher) values('50 libros grises', 'English', '3', '26/2/1990', '7/1/2014','editora 2');
+select sleep(1);insert into books(title, language, edition, editionDate, printingDate, publisher) values('Piensa en positivo', 'Spanish', '1', '18/4/1992', '18/9/2007','editora 3');
+select sleep(1);insert into books(title, language, edition, editionDate, printingDate, publisher) values('Programacion para tontos', 'Spanish', '2', '11/6/1999', '9/11/2005','editora 4');
+
+insert into authors_books values ('1','3');
+insert into authors_books values ('2','4');
+insert into authors_books values ('3','1');
+insert into authors_books values ('4','1');
+insert into authors_books values ('3','2');
+insert into authors_books values ('5','4');
+
+insert into reviews(username, name, bookid, content) values ('angel','Angel', '1','Buen libro, es interesante');
+select sleep(1);insert into reviews(username, name, bookid, content) values ('oscar','Oscar', '1','no esta mal, podria ser mejor');
+select sleep(1);insert into reviews(username, name, bookid, content) values ('oscar','Oscar', '2','le falta colores');
+select sleep(1);insert into reviews(username, name, bookid, content) values ('feliu','Feliu', '3','yo es que pienso en negativo');
+select sleep(1);insert into reviews(username, name, bookid, content) values ('angel','Angel', '3','pues yo si pienso en positivo mindungui');
+select sleep(1);insert into reviews(username, name, bookid, content) values ('feliu','Feliu', '4','no entiendo nada tio');
+select sleep(1);insert into reviews(username, name, bookid, content) values ('oscar','Oscar', '4','este libro para tontos me sirve');

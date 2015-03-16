@@ -1,6 +1,7 @@
 package edu.upc.eetac.dsa.ajarac.libreria.api;
 
 import java.sql.Connection;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -129,7 +130,9 @@ public class BookResource {
 				book.setLastModified(rs.getTimestamp("last_modified").getTime());
 				book.setCreationTimestamp(rs.getTimestamp("creation_timestamp")
 						.getTime());
-				book = getAuthors(book);
+				Book b = new Book();
+				b = getAuthors(book.getBookid());
+				book.setAuthors(b.getAuthors());
 				oldestTimestamp = rs.getTimestamp("creation_timestamp")
 						.getTime();
 				book.setLastModified(oldestTimestamp);
@@ -155,7 +158,8 @@ public class BookResource {
 		return books;
 	}
 
-	private Book getAuthors(Book book) {
+	private Book getAuthors(int bookid) {
+		Book book = new Book();
 		Connection conn = null;
 		try {
 			conn = ds.getConnection();
@@ -167,7 +171,7 @@ public class BookResource {
 		PreparedStatement stmt = null;
 		try {
 			stmt = conn.prepareStatement(GET_AUTHORS_BY_BOOKID);
-			stmt.setInt(1, Integer.valueOf(book.getBookid()));
+			stmt.setInt(1, Integer.valueOf(bookid));
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				Author author = new Author();
@@ -237,7 +241,9 @@ public class BookResource {
 				book.setLastModified(rs.getTimestamp("last_modified").getTime());
 				book.setCreationTimestamp(rs.getTimestamp("creation_timestamp")
 						.getTime());
-				book = getAuthors(book);
+				Book b = new Book();
+				b = getAuthors(book.getBookid());
+				book.setAuthors(b.getAuthors());
 			} else {
 				throw new NotFoundException("There's no book with bookid="
 						+ bookid);

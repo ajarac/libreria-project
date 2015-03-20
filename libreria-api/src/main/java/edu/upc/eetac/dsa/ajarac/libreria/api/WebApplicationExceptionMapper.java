@@ -1,11 +1,11 @@
-package edu.upc.eetad.dsa.ajarac.libreria.api.model;
+package edu.upc.eetac.dsa.ajarac.libreria.api;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import edu.upc.eetac.dsa.ajarac.libreria.api.MediaType;
+import edu.upc.eetad.dsa.ajarac.libreria.api.model.LibreriaError;
 
 @Provider
 public class WebApplicationExceptionMapper implements

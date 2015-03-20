@@ -12,8 +12,6 @@ import edu.upc.eetac.dsa.ajarac.libreria.api.BookResource;
 import edu.upc.eetac.dsa.ajarac.libreria.api.LibreriaRootAPIResource;
 import edu.upc.eetac.dsa.ajarac.libreria.api.MediaType;
 
-
-
 public class LibreriaRootAPI {
 	@InjectLinks({
         @InjectLink(resource = LibreriaRootAPIResource.class, style = Style.ABSOLUTE, rel = "self bookmark home", title = "Beeter Root API"),

@@ -1,7 +1,6 @@
 package edu.upc.eetac.dsa.ajarac.libreria.api;
 
 import java.sql.Connection;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -52,6 +51,7 @@ public class BookResource {
 	private String INSERT_BOOK_QUERY = "insert into books (title, language, edition, editionDate, printingDate, publisher) values (?,?,?,?,?,?) ";
 	private String UPDATE_BOOK_QUERY = "update books set title=ifnull(?, title), language=ifnull(?, language), edition=ifnull(?,edition), editionDate=ifnull(?,editionDate), printingDate=ifnull(?,printingDate) where bookid =?";
 	private String DELETE_BOOK_QUERY = "delete from books where bookid = ?";
+	private String INSERT_AUTHOR_BOOK_QUERY = "insert into authors_books values (?, ?)";
 
 	@GET
 	@Produces(MediaType.LIBRERIA_API_BOOK_COLLECTION)
@@ -139,7 +139,6 @@ public class BookResource {
 				if (first) {
 					first = false;
 					books.setNewestTimestamp(book.getCreationTimestamp());
-					;
 				}
 				books.addBook(book);
 			}
@@ -309,7 +308,7 @@ public class BookResource {
 	}
 
 	@PUT
-	@Path("/{bookid")
+	@Path("/{bookid}")
 	@Consumes(MediaType.LIBRERIA_API_BOOK)
 	@Produces(MediaType.LIBRERIA_API_BOOK)
 	public Book updateBook(@PathParam("bookid") String bookid, Book book) {
@@ -324,6 +323,8 @@ public class BookResource {
 
 		PreparedStatement stmt = null;
 		try {
+			updateAuthorBook(book);
+			stmt = null;
 			stmt = conn.prepareStatement(UPDATE_BOOK_QUERY);
 			stmt.setString(1, book.getTitle());
 			stmt.setString(2, book.getLanguage());
@@ -336,7 +337,7 @@ public class BookResource {
 			if (rows == 1) {
 				book = getBookFromDataBase(bookid);
 			} else {
-				throw new NotFoundException("There's no sting with stingid="
+				throw new NotFoundException("There's no book with bookid="
 						+ bookid);
 			}
 		} catch (SQLException e) {
@@ -351,6 +352,43 @@ public class BookResource {
 			}
 		}
 		return book;
+	}
+
+	private void updateAuthorBook(Book book) {
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+		PreparedStatement stmt = null;
+		try {
+			int j = 0;
+			int i = book.getAuthors().size();
+			while (j < i) {
+				stmt = null;
+				stmt = conn.prepareStatement(INSERT_AUTHOR_BOOK_QUERY);
+				stmt.setInt(1, book.getAuthors().get(j).getAuthorid());
+				stmt.setInt(2, book.getBookid());
+				int rows = stmt.executeUpdate();
+				if (rows == 1) {
+					throw new NotFoundException("There's no author with authorid="
+							+ book.getAuthors().get(j).getAuthorid());
+				}
+				j++;
+			}
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+			}
+		}
 	}
 
 	private void validateBook(Book book) {
@@ -369,6 +407,7 @@ public class BookResource {
 			int j = 0;
 			int i = authors.size();
 			while (j < i) {
+				stmt = null;
 				stmt = conn.prepareStatement(GET_AUTHORS_QUERY);
 				stmt.setInt(1, authors.get(j).getAuthorid());
 				int rows = stmt.executeUpdate();
@@ -377,7 +416,7 @@ public class BookResource {
 				j++;
 			}
 			if (vacio == true) {
-				throw new NotFoundException("There's no author found");
+				throw new NotFoundException("There's no author");
 			}
 		} catch (SQLException e) {
 			throw new ServerErrorException(e.getMessage(),
@@ -393,7 +432,7 @@ public class BookResource {
 	}
 
 	@DELETE
-	@Path("/{bookid")
+	@Path("/{bookid}")
 	public void deleteBook(@PathParam("bookid") String bookid) {
 		Connection conn = null;
 		try {
@@ -406,10 +445,10 @@ public class BookResource {
 		PreparedStatement stmt = null;
 		try {
 			stmt = conn.prepareStatement(DELETE_BOOK_QUERY);
-			stmt.setInt(1,Integer.valueOf(bookid));
+			stmt.setInt(1, Integer.valueOf(bookid));
 			int rows = stmt.executeUpdate();
-			if (rows == 0){
-				throw new NotFoundException("There's no sting with stingid="
+			if (rows == 0) {
+				throw new NotFoundException("There's no book with bookid="
 						+ bookid);
 			}
 		} catch (SQLException e) {

@@ -8,8 +8,10 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 
 import javax.sql.DataSource;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
@@ -177,6 +179,14 @@ public class ReviewResource {
 		return reviews;
 	}
 
+	private void validateUser(String reviewid) {
+		Review review = getReviewFromDataBase(reviewid);
+		String username = review.getUsername();
+		if (!security.getUserPrincipal().getName().equals(username))
+			throw new ForbiddenException(
+					"You are not allowed to modify this review.");
+	}
+
 	@PUT
 	@Path("/{reviewid}")
 	@Consumes(MediaType.LIBRERIA_API_REVIEW)
@@ -184,6 +194,7 @@ public class ReviewResource {
 	public Review updateReview(@PathParam("reviewid") String reviewid,
 			Review review) {
 		validateReview(review);
+		validateUser(reviewid);
 		Connection conn = null;
 		try {
 			conn = ds.getConnection();
@@ -236,7 +247,7 @@ public class ReviewResource {
 		try {
 			stmt = conn.prepareStatement(INSERT_REVIEW_QUERY,
 					Statement.RETURN_GENERATED_KEYS);
-			stmt.setString(1, review.getUsername());
+			stmt.setString(1, security.getUserPrincipal().getName());
 			stmt.setString(2, review.getName());
 			stmt.setInt(3, review.getBook());
 			stmt.setString(4, review.getContent());
@@ -263,6 +274,7 @@ public class ReviewResource {
 	@DELETE
 	@Path("/{reviewid}")
 	public void deleteReview(@PathParam("reviewid") String reviewid) {
+		validateUser(reviewid);
 		Connection conn = null;
 		try {
 			conn = ds.getConnection();
@@ -335,7 +347,11 @@ public class ReviewResource {
 	}
 
 	private void validateReview(Review review) {
-		// TODO Auto-generated method stub
+		if (review.getContent() == null)
+			throw new BadRequestException("Content can't be null. ");
+		if (review.getContent().length() > 500)
+			throw new BadRequestException(
+					"Content can't be greater than 500 characters.");
 
 	}
 }
